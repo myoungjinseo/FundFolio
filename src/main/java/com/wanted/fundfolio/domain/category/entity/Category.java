@@ -3,6 +3,9 @@ package com.wanted.fundfolio.domain.category.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @AllArgsConstructor
 @Builder
@@ -16,6 +19,11 @@ public class Category {
     @Column
     @Enumerated(EnumType.STRING)
     private CategoryType categoryType;
+
+    public static List<CategoryType> categoryList(){
+        return List.of(CategoryType.values());
+    }
+
 
 
 }
