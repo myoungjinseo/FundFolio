@@ -1,5 +1,7 @@
 package com.wanted.fundfolio.domain.expenditure.entity;
 
+import com.wanted.fundfolio.domain.category.entity.Category;
+import com.wanted.fundfolio.domain.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,4 +26,12 @@ public class Expenditure {
 
     @Column
     private String content;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "Category_id")
+    private Category category;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "Member_id")
+    private Member member;
 }

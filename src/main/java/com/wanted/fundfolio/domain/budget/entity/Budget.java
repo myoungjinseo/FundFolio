@@ -1,5 +1,6 @@
 package com.wanted.fundfolio.domain.budget.entity;
 
+import com.wanted.fundfolio.domain.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -15,6 +16,10 @@ public class Budget {
 
     @Column
     private String amount;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "Member_id")
+    private Member member;
 
 
 
