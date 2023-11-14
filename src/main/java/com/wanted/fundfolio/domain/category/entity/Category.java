@@ -1,5 +1,6 @@
 package com.wanted.fundfolio.domain.category.entity;
 
+import com.wanted.fundfolio.domain.budget.entity.BudgetCategory;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -20,6 +21,8 @@ public class Category {
     @Enumerated(EnumType.STRING)
     private CategoryType categoryType;
 
+    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    private List<BudgetCategory> budgetCategories;
     public static List<CategoryType> categoryList(){
         return List.of(CategoryType.values());
     }
