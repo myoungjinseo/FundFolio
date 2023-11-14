@@ -9,19 +9,20 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
+
 
 @RestController
 @RequestMapping("api/v1/budgets")
 @RequiredArgsConstructor
 public class BudgetController {
     private final BudgetService budgetService;
-    private final MemberRepository memberRepository;
     @PostMapping("/save")
-    public ResponseEntity<?> save(@RequestBody BudgetRequest budgetRequest) throws Exception {
+    public ResponseEntity<?> save(@RequestBody BudgetRequest budgetRequest, Principal principal) {
 
         // 임의로 설정
-        Member member = memberRepository.findById(1L).orElseThrow(Exception::new);
-        BudgetResponse save = budgetService.save(member.getId(), budgetRequest);
+        String username = principal.getName().split(":")[0];
+        BudgetResponse save = budgetService.save(username, budgetRequest);
         return ResponseEntity.ok().body(save);
     }
 }

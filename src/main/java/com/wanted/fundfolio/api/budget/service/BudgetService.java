@@ -30,8 +30,8 @@ public class BudgetService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    public BudgetResponse save(Long memberId,BudgetRequest budgetRequest){
-        Member member = memberRepository.findById(memberId)
+    public BudgetResponse save(String username,BudgetRequest budgetRequest){
+        Member member = memberRepository.findByUsername(username)
                 .orElseThrow(() -> new ErrorException(ErrorCode.NON_EXISTENT_MEMBER));
 
         Budget budget = Budget.builder()
@@ -52,7 +52,7 @@ public class BudgetService {
                 .build();
         budgetCategoryRepository.save(budgetCategory);
 
-        BudgetResponse response = BudgetResponse.of(member.getUsername(),budget, category);
-        return response;
+        return BudgetResponse.of(member.getUsername(),budget, category);
+        
     }
 }
