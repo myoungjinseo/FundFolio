@@ -7,6 +7,8 @@ import lombok.Getter;
 public enum CategoryType {
     FOOD_EXPENSE("식비"),
     TRAFFIC_EXPENSE("교통비");
+
+
     @JsonValue
     private final String koreaType;
 
