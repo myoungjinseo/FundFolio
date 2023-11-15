@@ -8,7 +8,6 @@ import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Entity
 @AllArgsConstructor
@@ -21,7 +20,7 @@ public class Expenditure {
     private Long id;
 
     @Column
-    private Long amount;
+    private long amount;
 
     @Column
     @DateTimeFormat(pattern = "yyyy-MM-dd")
@@ -37,6 +36,14 @@ public class Expenditure {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "Member_id")
     private Member member;
+
+    @Column
+    @Builder.Default
+    private boolean excludeTotal = true;
+
+    public void updateExclude(){
+        this.excludeTotal = false;
+    }
 
     public void update(ExpenditureRequest request,Category category){
         this.amount = request.getAmount();

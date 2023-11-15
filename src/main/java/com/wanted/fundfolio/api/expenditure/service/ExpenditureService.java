@@ -1,7 +1,7 @@
 package com.wanted.fundfolio.api.expenditure.service;
 
 import com.wanted.fundfolio.api.category.service.CategoryService;
-import com.wanted.fundfolio.api.expenditure.dto.ExpenditureRequest;
+import com.wanted.fundfolio.api.expenditure.dto.*;
 import com.wanted.fundfolio.api.user.service.MemberService;
 import com.wanted.fundfolio.domain.category.entity.Category;
 import com.wanted.fundfolio.domain.expenditure.entity.Expenditure;
@@ -13,6 +13,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.print.DocFlavor;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -21,8 +24,9 @@ public class ExpenditureService {
     private final MemberService memberService;
     private final CategoryService categoryService;
     private final ExpenditureRepository expenditureRepository;
+
     @Transactional
-    public Long create(ExpenditureRequest request, String username){
+    public Long create(ExpenditureRequest request, String username) {
         Member member = memberService.findMember(username);
         Category category = categoryService.save(request.getCategoryType());
         Expenditure expenditure = Expenditure.builder()
@@ -37,30 +41,60 @@ public class ExpenditureService {
     }
 
     @Transactional
-    public void update(Long id,ExpenditureRequest request, String username){
+    public void update(Long id, ExpenditureRequest request, String username) {
         Member member = memberService.findMember(username);
         Expenditure expenditure = findExpenditure(id);
-        if(member != expenditure.getMember()){
+        if (member != expenditure.getMember()) {
             throw new ErrorException(ErrorCode.NON_EXISTENT_MEMBER);
         }
         Category category = categoryService.save(request.getCategoryType());
-        expenditure.update(request,category);
+        expenditure.update(request, category);
 
     }
 
     @Transactional
-    public void delete(Long id, String username){
+    public void delete(Long id, String username) {
         Member member = memberService.findMember(username);
         Expenditure expenditure = findExpenditure(id);
-        if(member != expenditure.getMember()){
+        if (member != expenditure.getMember()) {
             throw new ErrorException(ErrorCode.NON_EXISTENT_MEMBER);
         }
         expenditureRepository.deleteById(id);
     }
 
     @Transactional
-    public Expenditure findExpenditure(Long id){
+    public Expenditure findExpenditure(Long id) {
         return expenditureRepository.findById(id)
                 .orElseThrow(() -> new ErrorException(ErrorCode.NON_EXISTENT_EXPENDITURE));
+    }
+
+    @Transactional
+    public void excludingTotal(Long id, String username) {
+        Expenditure expenditure = findExpenditure(id);
+        Member member = memberService.findMember(username);
+        if (member != expenditure.getMember()) {
+            throw new ErrorException(ErrorCode.NON_EXISTENT_MEMBER);
+        }
+        expenditure.updateExclude();
+    }
+
+    public ExpenditureReadListResponse readListAll(String username, ExpenditureReadRequest request) {
+        Member member = memberService.findMember(username);
+        List<ExpenditureReadResponse> list = expenditureRepository.findList(request, member, request.getCategoryType());
+        Category category = categoryService.save(request.getCategoryType());
+        Long amountByCategory = expenditureRepository.findAmountByCategory(category, member);
+        Long amountAll = expenditureRepository.findAmountAll(member);
+
+        return ExpenditureReadListResponse.of(list, amountAll, amountByCategory);
+
+    }
+
+    public ExpenditureResponse read(String username, Long id ){
+        Member member = memberService.findMember(username);
+        Expenditure expenditure = findExpenditure(id);
+        if (member != expenditure.getMember()) {
+            throw new ErrorException(ErrorCode.NON_EXISTENT_MEMBER);
+        }
+        return ExpenditureResponse.of(expenditure);
     }
 }
