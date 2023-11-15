@@ -1,6 +1,7 @@
 package com.wanted.fundfolio.api.budget.dto;
 
 import com.wanted.fundfolio.domain.budget.entity.Budget;
+import com.wanted.fundfolio.domain.budget.entity.BudgetCategory;
 import com.wanted.fundfolio.domain.category.entity.Category;
 import com.wanted.fundfolio.domain.category.entity.CategoryType;
 import lombok.AllArgsConstructor;
@@ -15,7 +16,7 @@ import java.time.YearMonth;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BudgetResponse {
-    private String amount;
+    private long amount;
 
     @DateTimeFormat(pattern = "yyyy-MM")
     private YearMonth date;
@@ -24,7 +25,7 @@ public class BudgetResponse {
 
 
 
-    public static BudgetResponse of(String username,Budget budget, Category category){
-        return new BudgetResponse(budget.getAmount(),YearMonth.from(budget.getDate()),username,category.getCategoryType());
+    public static BudgetResponse of(String username, BudgetCategory budgetCategory,Budget budget, Category category){
+        return new BudgetResponse(budgetCategory.getAmount(),YearMonth.from(budget.getDate()),username,category.getCategoryType());
     }
 }
