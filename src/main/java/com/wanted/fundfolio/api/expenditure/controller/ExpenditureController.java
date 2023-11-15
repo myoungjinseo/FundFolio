@@ -33,4 +33,11 @@ public class ExpenditureController {
         expenditureService.delete(id, username);
         return ResponseEntity.ok().body("삭제");
     }
+
+    @PostMapping("/exclude/{id}")
+    public  ResponseEntity<?> excludingTotal(@PathVariable Long id,Principal principal){
+        String username = principal.getName().split(":")[0];
+        expenditureService.excludingTotal(id, username);
+        return ResponseEntity.ok().body("합계 제외");
+    }
 }

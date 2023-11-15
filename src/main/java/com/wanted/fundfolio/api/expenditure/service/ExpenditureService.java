@@ -1,6 +1,7 @@
 package com.wanted.fundfolio.api.expenditure.service;
 
 import com.wanted.fundfolio.api.category.service.CategoryService;
+import com.wanted.fundfolio.api.expenditure.dto.ExpenditureReadResponse;
 import com.wanted.fundfolio.api.expenditure.dto.ExpenditureRequest;
 import com.wanted.fundfolio.api.user.service.MemberService;
 import com.wanted.fundfolio.domain.category.entity.Category;
@@ -10,8 +11,11 @@ import com.wanted.fundfolio.domain.member.entity.Member;
 import com.wanted.fundfolio.global.exception.ErrorCode;
 import com.wanted.fundfolio.global.exception.ErrorException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -62,5 +66,20 @@ public class ExpenditureService {
     public Expenditure findExpenditure(Long id){
         return expenditureRepository.findById(id)
                 .orElseThrow(() -> new ErrorException(ErrorCode.NON_EXISTENT_EXPENDITURE));
+    }
+
+//    public List<ExpenditureReadResponse> readListAll(){
+//
+//        return
+//    }
+
+    @Transactional
+    public void excludingTotal(Long id, String username){
+        Expenditure expenditure = findExpenditure(id);
+        Member member = memberService.findMember(username);
+        if(member != expenditure.getMember()){
+            throw new ErrorException(ErrorCode.NON_EXISTENT_MEMBER);
+        }
+        expenditure.updateExclude();
     }
 }
