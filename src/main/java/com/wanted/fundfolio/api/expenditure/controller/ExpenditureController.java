@@ -1,5 +1,7 @@
 package com.wanted.fundfolio.api.expenditure.controller;
 
+import com.wanted.fundfolio.api.expenditure.dto.ExpenditureReadListResponse;
+import com.wanted.fundfolio.api.expenditure.dto.ExpenditureReadRequest;
 import com.wanted.fundfolio.api.expenditure.dto.ExpenditureRequest;
 import com.wanted.fundfolio.api.expenditure.service.ExpenditureService;
 import lombok.RequiredArgsConstructor;
@@ -39,5 +41,12 @@ public class ExpenditureController {
         String username = principal.getName().split(":")[0];
         expenditureService.excludingTotal(id, username);
         return ResponseEntity.ok().body("합계 제외");
+    }
+
+    @GetMapping("/findAll")
+    public ResponseEntity<?> readListAll(ExpenditureReadRequest request,Principal principal){
+        String username = principal.getName().split(":")[0];
+        ExpenditureReadListResponse response = expenditureService.readListAll(username, request);
+        return ResponseEntity.ok().body(response);
     }
 }
