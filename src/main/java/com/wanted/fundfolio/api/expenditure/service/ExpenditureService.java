@@ -41,7 +41,7 @@ public class ExpenditureService {
         Member member = memberService.findMember(username);
         Expenditure expenditure = findExpenditure(id);
         if(member != expenditure.getMember()){
-            throw new ErrorException(ErrorCode.Authorization_MEMBER);
+            throw new ErrorException(ErrorCode.NON_EXISTENT_MEMBER);
         }
         Category category = categoryService.save(request.getCategoryType());
         expenditure.update(request,category);
@@ -53,7 +53,7 @@ public class ExpenditureService {
         Member member = memberService.findMember(username);
         Expenditure expenditure = findExpenditure(id);
         if(member != expenditure.getMember()){
-            throw new ErrorException(ErrorCode.Authorization_MEMBER);
+            throw new ErrorException(ErrorCode.NON_EXISTENT_MEMBER);
         }
         expenditureRepository.deleteById(id);
     }
