@@ -17,8 +17,6 @@ public class Budget {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
-    private String amount;
 
     @Column
     private LocalDate date;

@@ -20,4 +20,7 @@ public class BudgetCategory {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "Category_id")
     private Category category;
+
+    @Column
+    private long amount;
 }
