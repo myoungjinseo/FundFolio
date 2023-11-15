@@ -12,7 +12,7 @@ import java.time.YearMonth;
 @Getter
 @ToString
 public class BudgetRequest {
-    private String amount;
+    private long amount;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM", timezone = "Asia/Seoul")
     private YearMonth date;
     private CategoryType categoryType;

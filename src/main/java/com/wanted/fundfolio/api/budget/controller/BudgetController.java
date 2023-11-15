@@ -1,5 +1,6 @@
 package com.wanted.fundfolio.api.budget.controller;
 
+import com.wanted.fundfolio.api.budget.dto.BudgetRecommendResponse;
 import com.wanted.fundfolio.api.budget.dto.BudgetRequest;
 import com.wanted.fundfolio.api.budget.dto.BudgetResponse;
 import com.wanted.fundfolio.api.budget.service.BudgetService;
@@ -10,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.List;
 
 
 @RestController
@@ -24,5 +26,11 @@ public class BudgetController {
         String username = principal.getName().split(":")[0];
         BudgetResponse save = budgetService.save(username, budgetRequest);
         return ResponseEntity.ok().body(save);
+    }
+
+    @GetMapping("/recommend")
+    private ResponseEntity<?> recommend(){
+        List<BudgetRecommendResponse> response = budgetService.recommend();
+        return ResponseEntity.ok().body(response);
     }
 }
