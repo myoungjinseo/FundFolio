@@ -22,7 +22,6 @@ public class BudgetController {
     @PostMapping("/save")
     public ResponseEntity<?> save(@RequestBody BudgetRequest budgetRequest, Principal principal) {
 
-        // 임의로 설정
         String username = principal.getName().split(":")[0];
         BudgetResponse save = budgetService.save(username, budgetRequest);
         return ResponseEntity.ok().body(save);

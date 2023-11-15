@@ -22,11 +22,11 @@ public class CategoryService {
     }
 
     @Transactional
-    public Category save(BudgetRequest budgetRequest){
-        Category category = categoryRepository.findByCategoryType(budgetRequest.getCategoryType());
+    public Category save(CategoryType categoryType){
+        Category category = categoryRepository.findByCategoryType(categoryType);
         if(category == null){
             category = Category.builder()
-                    .categoryType(budgetRequest.getCategoryType())
+                    .categoryType(categoryType)
                     .build();
             categoryRepository.save(category);
         }

@@ -49,7 +49,6 @@ public class MemberService {
         Set<Role> set = new HashSet<>();
         set.add(Role.ROLE_USER);
 
-
         Member member = Member.builder()
                 .username(signRequest.getUsername())
                 .password(passwordEncoder.encode(signRequest.getPassword()))
@@ -59,6 +58,10 @@ public class MemberService {
         memberRepository.save(member);
         return "회원가입 완료";
 
+    }
 
+    public Member findMember(String username){
+        return memberRepository.findByUsername(username)
+                .orElseThrow(() -> new ErrorException(ErrorCode.NON_EXISTENT_MEMBER));
     }
 }

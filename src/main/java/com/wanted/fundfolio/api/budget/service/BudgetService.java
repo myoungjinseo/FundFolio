@@ -4,6 +4,7 @@ import com.wanted.fundfolio.api.budget.dto.BudgetRecommendResponse;
 import com.wanted.fundfolio.api.budget.dto.BudgetRequest;
 import com.wanted.fundfolio.api.budget.dto.BudgetResponse;
 import com.wanted.fundfolio.api.category.service.CategoryService;
+import com.wanted.fundfolio.api.user.service.MemberService;
 import com.wanted.fundfolio.domain.budget.entity.Budget;
 import com.wanted.fundfolio.domain.budget.entity.BudgetCategory;
 import com.wanted.fundfolio.domain.budget.repo.BudgetCategoryRepository;
@@ -28,12 +29,11 @@ public class BudgetService {
     private final BudgetRepository budgetRepository;
     private final CategoryService categoryService;
     private final BudgetCategoryRepository budgetCategoryRepository;
-    private final MemberRepository memberRepository;
+    private final MemberService memberService;
 
     @Transactional
     public BudgetResponse save(String username,BudgetRequest budgetRequest){
-        Member member = memberRepository.findByUsername(username)
-                .orElseThrow(() -> new ErrorException(ErrorCode.NON_EXISTENT_MEMBER));
+        Member member = memberService.findMember(username);
         Budget findBudget = budgetRepository.findByMemberAndDate(member, budgetRequest.getDate().atDay(1));
         if(findBudget ==null){
             findBudget = Budget.builder()
@@ -44,7 +44,7 @@ public class BudgetService {
         }
 
 
-        Category category = categoryService.save(budgetRequest);
+        Category category = categoryService.save(budgetRequest.getCategoryType());
 
         BudgetCategory budgetCategory = BudgetCategory.builder()
                 .budget(findBudget)
