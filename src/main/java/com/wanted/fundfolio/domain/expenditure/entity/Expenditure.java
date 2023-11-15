@@ -20,7 +20,7 @@ public class Expenditure {
     private Long id;
 
     @Column
-    private Long amount;
+    private long amount;
 
     @Column
     @DateTimeFormat(pattern = "yyyy-MM-dd")
