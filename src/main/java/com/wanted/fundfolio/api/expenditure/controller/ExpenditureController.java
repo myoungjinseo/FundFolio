@@ -1,9 +1,6 @@
 package com.wanted.fundfolio.api.expenditure.controller;
 
-import com.wanted.fundfolio.api.expenditure.dto.ExpenditureReadListResponse;
-import com.wanted.fundfolio.api.expenditure.dto.ExpenditureReadRequest;
-import com.wanted.fundfolio.api.expenditure.dto.ExpenditureRequest;
-import com.wanted.fundfolio.api.expenditure.dto.ExpenditureResponse;
+import com.wanted.fundfolio.api.expenditure.dto.*;
 import com.wanted.fundfolio.api.expenditure.service.ExpenditureService;
 import com.wanted.fundfolio.domain.expenditure.entity.Expenditure;
 import lombok.RequiredArgsConstructor;
@@ -57,5 +54,12 @@ public class ExpenditureController {
         String username = principal.getName().split(":")[0];
         ExpenditureResponse read = expenditureService.read(username, id);
         return ResponseEntity.ok().body(read);
+    }
+
+    @GetMapping("/today")
+    public ResponseEntity<?> recommendToday(Principal principal){
+        String username = principal.getName().split(":")[0];
+        ExpenditureRecommendResponse response = expenditureService.recommendToday(username);
+        return ResponseEntity.ok().body(response);
     }
 }
