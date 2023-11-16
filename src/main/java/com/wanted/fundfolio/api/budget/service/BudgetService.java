@@ -32,10 +32,10 @@ public class BudgetService {
     private final MemberService memberService;
 
     @Transactional
-    public BudgetResponse save(String username,BudgetRequest budgetRequest){
+    public BudgetResponse save(String username, BudgetRequest budgetRequest) {
         Member member = memberService.findMember(username);
         Budget findBudget = budgetRepository.findByMemberAndDate(member, budgetRequest.getDate().atDay(1));
-        if(findBudget ==null){
+        if (findBudget == null) {
             findBudget = Budget.builder()
                     .member(member)
                     .date(budgetRequest.getDate().atDay(1))
@@ -53,20 +53,30 @@ public class BudgetService {
                 .build();
         budgetCategoryRepository.save(budgetCategory);
 
-        return BudgetResponse.of(member.getUsername(),budgetCategory,findBudget, category);
-        
+        return BudgetResponse.of(member.getUsername(), budgetCategory, findBudget, category);
+
     }
 
-    public List<BudgetRecommendResponse> recommend(){
+    public List<BudgetRecommendResponse> recommend() {
         List<Category> categories = categoryService.categoryList();
         List<BudgetRecommendResponse> amountList = new ArrayList<>();
         long amountAll = budgetCategoryRepository.findAmountAll();
-        for (Category category : categories){
+        for (Category category : categories) {
             long amountByCategory = budgetCategoryRepository.findAmountByCategory(category);
-            long result = amountByCategory * 100 /amountAll ;
+            long result = amountByCategory * 100 / amountAll;
             BudgetRecommendResponse dto = BudgetRecommendResponse.of(category.getCategoryType(), result);
             amountList.add(dto);
         }
         return amountList;
     }
+
+    public Long findAmountAllByMember(Member member) {
+        return budgetCategoryRepository.findAmountAllByMember(member);
+    }
+
+    public Long findAmountByCategoryMember(Member member,Category category) {
+        return budgetCategoryRepository.findAmountByCategoryMember(member,category);
+    }
+
+
 }
