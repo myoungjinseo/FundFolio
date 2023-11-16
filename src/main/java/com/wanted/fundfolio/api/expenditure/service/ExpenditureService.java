@@ -18,6 +18,7 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -94,7 +95,7 @@ public class ExpenditureService {
 
     }
 
-    public ExpenditureResponse read(String username, Long id ){
+    public ExpenditureResponse read(String username, Long id) {
         Member member = memberService.findMember(username);
         Expenditure expenditure = findExpenditure(id);
         if (member != expenditure.getMember()) {
@@ -103,36 +104,61 @@ public class ExpenditureService {
         return ExpenditureResponse.of(expenditure);
     }
 
-    public ExpenditureRecommendResponse recommendToday(String username){
+    public ExpenditureRecommendResponse recommendToday(String username) {
         Member member = memberService.findMember(username);
         List<Category> categories = categoryService.categoryList();
+        long todayAmount = todayAmount(member);
+        List<ExpenditureAmountByCategoryResponse> categoryByAmountList = categoryByAmountList(member,categories);
+        return ExpenditureRecommendResponse.of(categoryByAmountList, todayAmount);
+
+    }
+
+    public List<ExpenditureAmountByCategoryResponse> categoryByAmountList(Member member,List<Category> categories) {
         List<ExpenditureAmountByCategoryResponse> categoryByAmountList = new ArrayList<>();
         int date = remainDays();
-        long todayAmount = todayAmount(member,date);
-        for(Category category : categories){
-            ExpenditureAmountByCategoryResponse dto = categoryByAmountList(category, member, date);
+        for (Category category : categories) {
+            long todayAmountByCategory = todayAmountByCategory(member, category, date);
+            ExpenditureAmountByCategoryResponse dto = ExpenditureAmountByCategoryResponse.of(category.getCategoryType(), todayAmountByCategory);
             categoryByAmountList.add(dto);
         }
-        return ExpenditureRecommendResponse.of(categoryByAmountList,todayAmount);
-
+        return categoryByAmountList;
     }
 
-    public ExpenditureAmountByCategoryResponse categoryByAmountList(Category category,Member member,int date){
+    public long todayAmountByCategory(Member member,Category category, int date){
         Long budgetAmountByCategory = budgetService.findAmountByCategoryMember(member, category);
         Long amountByCategory = expenditureRepository.findAmountByCategory(category, member).orElse(0L);
-        long todayAmountByCategory = Math.round((budgetAmountByCategory - amountByCategory)/date /100.0)*100;
-        return ExpenditureAmountByCategoryResponse.of(category.getCategoryType(), todayAmountByCategory);
+        return Math.round((budgetAmountByCategory - amountByCategory) / date / 100.0) * 100;
     }
 
-    public long todayAmount(Member member,int date){
+    public long todayAmount(Member member) {
+        int date = remainDays();
         Long amountAll = expenditureRepository.findAmountAll(member);
         Long budgetAmountAll = budgetService.findAmountAllByMember(member);
-        return Math.round((budgetAmountAll - amountAll) / date/100.0)*100;
+        return Math.round((budgetAmountAll - amountAll) / date / 100.0) * 100;
     }
 
-    public int remainDays(){
+    public int remainDays() {
         return YearMonth.now().atEndOfMonth().getDayOfMonth() - LocalDate.now().getDayOfMonth() + 1;
     }
 
+    public ExpenditureGuideTodayResponse guideToday(String username) {
+        Member member = memberService.findMember(username);
+        List<Category> categories = categoryService.categoryList();
+        Long todayAmount = expenditureRepository.findTodayAmount(member).orElse(0L);
+        int date = remainDays();
+        List<ExpenditureAmountResponse> monthAmountByCategory = new ArrayList<>();
+        for (Category category : categories) {
+            Long todayAmountByCategory = expenditureRepository.findTodayAmountByCategory(category, member).orElse(0L);
+            Long categoryByAmountList = todayAmountByCategory(member,category,date);
+            Long dangerPercent = todayAmountByCategory * 100/ categoryByAmountList ;
+            ExpenditureAmountResponse dto = ExpenditureAmountResponse.of(category.getCategoryType(), categoryByAmountList, todayAmountByCategory, dangerPercent);
+            monthAmountByCategory.add(dto);
+        }
+        return ExpenditureGuideTodayResponse.of(todayAmount,monthAmountByCategory);
+
+
+
+
+    }
 
 }

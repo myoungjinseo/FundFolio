@@ -11,6 +11,7 @@ import com.wanted.fundfolio.domain.member.entity.Member;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -56,6 +57,28 @@ public class ExpenditureRepositoryCustomImpl implements ExpenditureRepositoryCus
                 .where(expenditure.category.eq(category),
                         expenditure.excludeTotal,
                         expenditure.member.eq(member))
+                .fetchOne());
+    }
+
+    @Override
+    public Optional<Long> findTodayAmount( Member member){
+        return Optional.ofNullable(jpaQueryFactory
+                .select(expenditure.amount.sum())
+                .from(expenditure)
+                .where(expenditure.excludeTotal,
+                        expenditure.member.eq(member),
+                        expenditure.date.eq(LocalDate.now()))
+                .fetchOne());
+    }
+    @Override
+    public Optional<Long> findTodayAmountByCategory(Category category, Member member){
+        return Optional.ofNullable(jpaQueryFactory
+                .select(expenditure.amount.sum())
+                .from(expenditure)
+                .where(expenditure.category.eq(category),
+                        expenditure.excludeTotal,
+                        expenditure.member.eq(member),
+                        expenditure.date.eq(LocalDate.now()))
                 .fetchOne());
     }
 }

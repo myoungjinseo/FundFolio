@@ -14,4 +14,6 @@ public interface ExpenditureRepositoryCustom {
     List<ExpenditureReadResponse> findList(ExpenditureReadRequest request, Member member, CategoryType categoryType);
     Long findAmountAll(Member member);
     Optional<Long> findAmountByCategory(Category category, Member member);
+    Optional<Long> findTodayAmount( Member member);
+    Optional<Long> findTodayAmountByCategory(Category category, Member member);
 }

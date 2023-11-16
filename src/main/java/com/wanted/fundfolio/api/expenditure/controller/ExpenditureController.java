@@ -62,4 +62,11 @@ public class ExpenditureController {
         ExpenditureRecommendResponse response = expenditureService.recommendToday(username);
         return ResponseEntity.ok().body(response);
     }
+
+    @GetMapping("/today/guide")
+    public ResponseEntity<?> guideToday(Principal principal){
+        String username = principal.getName().split(":")[0];
+        ExpenditureGuideTodayResponse response = expenditureService.guideToday(username);
+        return ResponseEntity.ok().body(response);
+    }
 }
