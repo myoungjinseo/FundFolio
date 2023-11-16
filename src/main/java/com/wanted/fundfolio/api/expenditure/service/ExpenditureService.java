@@ -1,5 +1,6 @@
 package com.wanted.fundfolio.api.expenditure.service;
 
+import com.wanted.fundfolio.api.budget.service.BudgetService;
 import com.wanted.fundfolio.api.category.service.CategoryService;
 import com.wanted.fundfolio.api.expenditure.dto.*;
 import com.wanted.fundfolio.api.user.service.MemberService;
@@ -13,7 +14,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.print.DocFlavor;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -24,6 +27,8 @@ public class ExpenditureService {
     private final MemberService memberService;
     private final CategoryService categoryService;
     private final ExpenditureRepository expenditureRepository;
+
+    private final BudgetService budgetService;
 
     @Transactional
     public Long create(ExpenditureRequest request, String username) {
@@ -82,7 +87,7 @@ public class ExpenditureService {
         Member member = memberService.findMember(username);
         List<ExpenditureReadResponse> list = expenditureRepository.findList(request, member, request.getCategoryType());
         Category category = categoryService.save(request.getCategoryType());
-        Long amountByCategory = expenditureRepository.findAmountByCategory(category, member);
+        Long amountByCategory = expenditureRepository.findAmountByCategory(category, member).orElse(0L);
         Long amountAll = expenditureRepository.findAmountAll(member);
 
         return ExpenditureReadListResponse.of(list, amountAll, amountByCategory);
@@ -97,4 +102,37 @@ public class ExpenditureService {
         }
         return ExpenditureResponse.of(expenditure);
     }
+
+    public ExpenditureRecommendResponse recommendToday(String username){
+        Member member = memberService.findMember(username);
+        List<Category> categories = categoryService.categoryList();
+        List<ExpenditureAmountByCategoryResponse> categoryByAmountList = new ArrayList<>();
+        int date = remainDays();
+        long todayAmount = todayAmount(member,date);
+        for(Category category : categories){
+            ExpenditureAmountByCategoryResponse dto = categoryByAmountList(category, member, date);
+            categoryByAmountList.add(dto);
+        }
+        return ExpenditureRecommendResponse.of(categoryByAmountList,todayAmount);
+
+    }
+
+    public ExpenditureAmountByCategoryResponse categoryByAmountList(Category category,Member member,int date){
+        Long budgetAmountByCategory = budgetService.findAmountByCategoryMember(member, category);
+        Long amountByCategory = expenditureRepository.findAmountByCategory(category, member).orElse(0L);
+        long todayAmountByCategory = Math.round((budgetAmountByCategory - amountByCategory)/date /100.0)*100;
+        return ExpenditureAmountByCategoryResponse.of(category.getCategoryType(), todayAmountByCategory);
+    }
+
+    public long todayAmount(Member member,int date){
+        Long amountAll = expenditureRepository.findAmountAll(member);
+        Long budgetAmountAll = budgetService.findAmountAllByMember(member);
+        return Math.round((budgetAmountAll - amountAll) / date/100.0)*100;
+    }
+
+    public int remainDays(){
+        return YearMonth.now().atEndOfMonth().getDayOfMonth() - LocalDate.now().getDayOfMonth() + 1;
+    }
+
+
 }

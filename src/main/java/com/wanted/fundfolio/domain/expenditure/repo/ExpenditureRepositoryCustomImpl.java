@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.wanted.fundfolio.domain.category.entity.QCategory.category;
 import static com.wanted.fundfolio.domain.expenditure.entity.QExpenditure.expenditure;
@@ -48,13 +49,13 @@ public class ExpenditureRepositoryCustomImpl implements ExpenditureRepositoryCus
     }
 
     @Override
-    public Long findAmountByCategory(Category category,Member member){
-        return jpaQueryFactory
+    public Optional<Long> findAmountByCategory(Category category, Member member){
+        return Optional.ofNullable(jpaQueryFactory
                 .select(expenditure.amount.sum())
                 .from(expenditure)
                 .where(expenditure.category.eq(category),
                         expenditure.excludeTotal,
                         expenditure.member.eq(member))
-                .fetchOne();
+                .fetchOne());
     }
 }

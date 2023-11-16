@@ -8,9 +8,10 @@ import com.wanted.fundfolio.domain.category.entity.CategoryType;
 import com.wanted.fundfolio.domain.member.entity.Member;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ExpenditureRepositoryCustom {
     List<ExpenditureReadResponse> findList(ExpenditureReadRequest request, Member member, CategoryType categoryType);
     Long findAmountAll(Member member);
-    Long findAmountByCategory(Category category,Member member);
+    Optional<Long> findAmountByCategory(Category category, Member member);
 }
