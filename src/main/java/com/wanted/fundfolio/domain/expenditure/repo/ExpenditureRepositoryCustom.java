@@ -20,6 +20,7 @@ public interface ExpenditureRepositoryCustom {
     Optional<Long> findComparedAmountAll(Member member, LocalDate startDate, LocalDate lastDate);
     Optional<Long> findComparedAmountByCategory(Category category, Member member, LocalDate startDate, LocalDate lastDate);
 
-    Optional<Long> findComparedAmountAllOfMember(Member member, LocalDate startDate, LocalDate lastDate);
-    Optional<Long> findComparedAmountByCategoryOfMember(Category category, Member member, LocalDate startDate, LocalDate lastDate);
+    Optional<Long> findTodayTotalAmount(Member member, LocalDate date);
+    Optional<Long> findTodayTotalAmountByCategory(Member member,Category category,LocalDate date);
+
 }

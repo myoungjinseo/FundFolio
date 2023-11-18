@@ -8,7 +8,7 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 public class ComparedResponse {
-    private long amountAll;
+    private long totalAmountPercent;
     private List<ExpenditureAmountByCategoryResponse> categoryResponses;
 
     public static ComparedResponse of(long amountAll, List<ExpenditureAmountByCategoryResponse> categoryResponses){

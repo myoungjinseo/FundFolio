@@ -161,7 +161,8 @@ public class ExpenditureService {
         Member member = memberService.findMember(username);
         ComparedResponse comparedResponse1 = monthResponse(member);
         ComparedResponse comparedResponse2 = dayResponse(member);
-        return ExpenditureStatisticsResponse.of(comparedResponse1,comparedResponse2,null);
+        ComparedResponse comparedResponse3 = memberResponse(member);
+        return ExpenditureStatisticsResponse.of(comparedResponse1,comparedResponse2,comparedResponse3);
     }
 
     public ComparedResponse monthResponse(Member member){
@@ -216,8 +217,28 @@ public class ExpenditureService {
         return ComparedResponse.of(comparedAmountAll, monthComparedList);
 
     }
-    public ComparedResponse memberResponse(){
+    public ComparedResponse memberResponse(Member member){
+        LocalDate now = LocalDate.now();
+        Long todayBudget = budgetService.findTodayTotalAmount(member, YearMonth.now().atDay(1));
+        List<Category> categories = categoryService.categoryList();
+        List<ExpenditureAmountByCategoryResponse> memberComparedList = new ArrayList<>();
 
+        for (Category category : categories) {
+            Long todayBudgetByCategory = budgetService.findTodayTotalAmountByCategory(member, category,  YearMonth.now().atDay(1));
+            if (todayBudgetByCategory != 0L){
+                long todayExpenditureByCategory = expenditureRepository.findTodayTotalAmountByCategory(member, category, now).orElse(0L);
+                long res =  todayBudgetByCategory* 100 / todayExpenditureByCategory;
+                ExpenditureAmountByCategoryResponse response = ExpenditureAmountByCategoryResponse.of(category.getCategoryType(), res);
+                memberComparedList.add(response);
+            }
+        }
+
+        if (todayBudget == 0L){
+            throw new ErrorException(ErrorCode.NON_EXISTENT_MEMBER);
+        }
+        Long todayExpenditure = expenditureRepository.findTodayTotalAmount(member, now).orElse(0L);
+        long comparedAmountAll =  todayBudget * 100 / todayExpenditure;
+        return ComparedResponse.of(comparedAmountAll, memberComparedList);
     }
 
 

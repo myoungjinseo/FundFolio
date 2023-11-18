@@ -78,5 +78,13 @@ public class BudgetService {
         return budgetCategoryRepository.findAmountByCategoryMember(member,category);
     }
 
+    public Long findTodayTotalAmount(Member member,LocalDate date){
+        return budgetCategoryRepository.findTodayTotalAmount(member,date).orElse(0L);
+    }
+
+    public Long findTodayTotalAmountByCategory(Member member,Category category,LocalDate date){
+        return budgetCategoryRepository.findTodayTotalAmountByCategory(member,category,date).orElse(0L);
+    }
+
 
 }
