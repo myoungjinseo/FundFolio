@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,16 +21,16 @@ import static com.wanted.fundfolio.domain.expenditure.entity.QExpenditure.expend
 
 @Repository
 @RequiredArgsConstructor
-public class ExpenditureRepositoryCustomImpl implements ExpenditureRepositoryCustom{
+public class ExpenditureRepositoryCustomImpl implements ExpenditureRepositoryCustom {
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public List<ExpenditureReadResponse> findList(ExpenditureReadRequest request, Member member, CategoryType categoryType){
+    public List<ExpenditureReadResponse> findList(ExpenditureReadRequest request, Member member, CategoryType categoryType) {
         return jpaQueryFactory
-                .select(Projections.fields(ExpenditureReadResponse.class,expenditure.id.as("ExpenditureId")
-                        ,expenditure.amount,expenditure.date,category.categoryType.as("categoryType"),expenditure.excludeTotal))
+                .select(Projections.fields(ExpenditureReadResponse.class, expenditure.id.as("ExpenditureId")
+                        , expenditure.amount, expenditure.date, category.categoryType.as("categoryType"), expenditure.excludeTotal))
                 .from(expenditure)
-                .where(expenditure.date.between(request.getStartDate(),request.getEndDate()),
+                .where(expenditure.date.between(request.getStartDate(), request.getEndDate()),
                         category.categoryType.eq(categoryType),
                         expenditure.amount.between(request.getMinAmount(), request.getMaxAmount()),
                         expenditure.member.eq(member))
@@ -39,7 +40,7 @@ public class ExpenditureRepositoryCustomImpl implements ExpenditureRepositoryCus
     }
 
     @Override
-    public Long findAmountAll(Member member){
+    public Long findAmountAll(Member member) {
         return jpaQueryFactory
                 .select(expenditure.amount.sum())
                 .from(expenditure)
@@ -50,7 +51,7 @@ public class ExpenditureRepositoryCustomImpl implements ExpenditureRepositoryCus
     }
 
     @Override
-    public Optional<Long> findAmountByCategory(Category category, Member member){
+    public Optional<Long> findAmountByCategory(Category category, Member member) {
         return Optional.ofNullable(jpaQueryFactory
                 .select(expenditure.amount.sum())
                 .from(expenditure)
@@ -61,24 +62,89 @@ public class ExpenditureRepositoryCustomImpl implements ExpenditureRepositoryCus
     }
 
     @Override
-    public Optional<Long> findTodayAmount( Member member){
+    public Optional<Long> findTodayAmount(Member member, LocalDate date) {
         return Optional.ofNullable(jpaQueryFactory
                 .select(expenditure.amount.sum())
                 .from(expenditure)
                 .where(expenditure.excludeTotal,
                         expenditure.member.eq(member),
-                        expenditure.date.eq(LocalDate.now()))
+                        expenditure.date.eq(date))
                 .fetchOne());
     }
+
     @Override
-    public Optional<Long> findTodayAmountByCategory(Category category, Member member){
+    public Optional<Long> findTodayAmountByCategory(Category category, Member member, LocalDate date) {
         return Optional.ofNullable(jpaQueryFactory
                 .select(expenditure.amount.sum())
                 .from(expenditure)
                 .where(expenditure.category.eq(category),
                         expenditure.excludeTotal,
                         expenditure.member.eq(member),
-                        expenditure.date.eq(LocalDate.now()))
+                        expenditure.date.eq(date))
                 .fetchOne());
     }
+
+    @Override
+    public Optional<Long> findComparedAmountAll(Member member, LocalDate startDate, LocalDate lastDate) {
+        return Optional.ofNullable(jpaQueryFactory
+                .select(expenditure.amount.sum())
+                .from(expenditure)
+                .where(expenditure.excludeTotal,
+                        expenditure.member.eq(member),
+                        expenditure.date.between(startDate, lastDate))
+                .fetchOne());
+    }
+
+    @Override
+    public Optional<Long> findComparedAmountByCategory(Category category, Member member, LocalDate startDate, LocalDate lastDate) {
+        return Optional.ofNullable(jpaQueryFactory
+                .select(expenditure.amount.sum())
+                .from(expenditure)
+                .where(expenditure.category.eq(category),
+                        expenditure.excludeTotal,
+                        expenditure.member.eq(member),
+                        expenditure.date.between(startDate, lastDate))
+                .fetchOne());
+    }
+
+    @Override
+    public Optional<Long> findTodayTotalAmount(Member member, LocalDate date) {
+        long a = Optional.ofNullable(jpaQueryFactory
+                .select(expenditure.amount.sum())
+                .from(expenditure)
+                .where(expenditure.excludeTotal,
+                        expenditure.member.eq(member),
+                        expenditure.date.between(YearMonth.now().atDay(1),date))
+                .fetchOne()).orElse(0L);
+        Long b = Optional.ofNullable(jpaQueryFactory
+                .select(expenditure.amount.sum())
+                .from(expenditure)
+                .where(expenditure.excludeTotal,
+                        expenditure.date.between(YearMonth.now().atDay(1),date))
+                .fetchOne()).orElse(0L);
+        return Optional.ofNullable( b.longValue()/ a);
+
+    }
+
+    @Override
+    public Optional<Long> findTodayTotalAmountByCategory(Member member, Category category, LocalDate date){
+        long a = Optional.ofNullable(jpaQueryFactory
+                .select(expenditure.amount.sum())
+                .from(expenditure)
+                .where(expenditure.category.eq(category),
+                        expenditure.excludeTotal,
+                        expenditure.member.eq(member),
+                        expenditure.date.between(YearMonth.now().atDay(1),date))
+                .fetchOne()).orElse(0l);
+        Long b = Optional.ofNullable(jpaQueryFactory
+                .select(expenditure.amount.sum())
+                .from(expenditure)
+                .where(expenditure.category.eq(category),
+                        expenditure.excludeTotal,
+                        expenditure.date.between(YearMonth.now().atDay(1),date))
+                .fetchOne()).orElse(0L);
+        return Optional.ofNullable( b.longValue()/ a);
+    }
+
+
 }

@@ -69,4 +69,11 @@ public class ExpenditureController {
         ExpenditureGuideTodayResponse response = expenditureService.guideToday(username);
         return ResponseEntity.ok().body(response);
     }
+
+    @GetMapping("/statistics")
+    public ResponseEntity<?> statistics(Principal principal){
+        String username = principal.getName().split(":")[0];
+        ExpenditureStatisticsResponse statistics = expenditureService.statistics(username);
+        return ResponseEntity.ok().body(statistics);
+    }
 }

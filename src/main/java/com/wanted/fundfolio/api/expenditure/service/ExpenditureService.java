@@ -144,21 +144,102 @@ public class ExpenditureService {
     public ExpenditureGuideTodayResponse guideToday(String username) {
         Member member = memberService.findMember(username);
         List<Category> categories = categoryService.categoryList();
-        Long todayAmount = expenditureRepository.findTodayAmount(member).orElse(0L);
+        Long todayAmount = expenditureRepository.findTodayAmount(member,LocalDate.now()).orElse(0L);
         int date = remainDays();
         List<ExpenditureAmountResponse> monthAmountByCategory = new ArrayList<>();
         for (Category category : categories) {
-            Long todayAmountByCategory = expenditureRepository.findTodayAmountByCategory(category, member).orElse(0L);
-            Long categoryByAmountList = todayAmountByCategory(member,category,date);
-            Long dangerPercent = todayAmountByCategory * 100/ categoryByAmountList ;
+            long todayAmountByCategory = expenditureRepository.findTodayAmountByCategory(category, member,LocalDate.now()).orElse(0L);
+            long categoryByAmountList = todayAmountByCategory(member,category,date);
+            long dangerPercent = todayAmountByCategory * 100/ categoryByAmountList ;
             ExpenditureAmountResponse dto = ExpenditureAmountResponse.of(category.getCategoryType(), categoryByAmountList, todayAmountByCategory, dangerPercent);
             monthAmountByCategory.add(dto);
         }
         return ExpenditureGuideTodayResponse.of(todayAmount,monthAmountByCategory);
+    }
 
+    public ExpenditureStatisticsResponse statistics(String username){
+        Member member = memberService.findMember(username);
+        ComparedResponse comparedResponse1 = monthResponse(member);
+        ComparedResponse comparedResponse2 = dayResponse(member);
+        ComparedResponse comparedResponse3 = memberResponse(member);
+        return ExpenditureStatisticsResponse.of(comparedResponse1,comparedResponse2,comparedResponse3);
+    }
 
+    public ComparedResponse monthResponse(Member member){
+        LocalDate now = LocalDate.now();
+        LocalDate oneDayOfMonth = YearMonth.now().atDay(1);
+        LocalDate oneDayOfLastMonth = YearMonth.now().minusMonths(1).atDay(1);
+        long comparedAmountAllOfMonth = expenditureRepository.findComparedAmountAll(member, oneDayOfMonth, now).orElse(0L);
+        List<Category> categories = categoryService.categoryList();
+        List<ExpenditureAmountByCategoryResponse> monthComparedList = new ArrayList<>();
+        LocalDate minusMonths = now.minusMonths(1);
+        for (Category category : categories) {
+            long findLastMonth = expenditureRepository.findComparedAmountByCategory(category, member,  oneDayOfLastMonth,minusMonths).orElse(0L);
+            if(findLastMonth != 0L){
+                Long findMonth = expenditureRepository.findComparedAmountByCategory(category, member, oneDayOfMonth, now).orElse(0L);
+                long monthCompared = findMonth * 100 / findLastMonth;
+                ExpenditureAmountByCategoryResponse compared = ExpenditureAmountByCategoryResponse.of(category.getCategoryType(),monthCompared);
+                monthComparedList.add(compared);
+            }
+        }
 
+        if (comparedAmountAllOfMonth == 0L){
+            throw new ErrorException(ErrorCode.NON_EXISTENT_MEMBER);
+        }
+        Long comparedAmountAllOfLastMonth = expenditureRepository.findComparedAmountAll(member, oneDayOfLastMonth, now.minusMonths(1)).orElse(0L);
+        long comparedAmountAll = comparedAmountAllOfMonth * 100 / comparedAmountAllOfLastMonth;
+        return ComparedResponse.of(comparedAmountAll, monthComparedList);
 
     }
+
+    public ComparedResponse dayResponse(Member member){
+        LocalDate now = LocalDate.now();
+        LocalDate oneDayOfMonth = YearMonth.now().atDay(1);
+        LocalDate oneDayOfLastMonth = LocalDate.now().minusDays(7);
+        long comparedAmountAllOfMonth = expenditureRepository.findComparedAmountAll(member, oneDayOfMonth, now).orElse(0L);
+        List<Category> categories = categoryService.categoryList();
+        List<ExpenditureAmountByCategoryResponse> monthComparedList = new ArrayList<>();
+        for (Category category : categories) {
+            long findLastMonth = expenditureRepository.findComparedAmountByCategory(category, member, now.minusDays(7), oneDayOfLastMonth).orElse(0L);
+            if(findLastMonth != 0L){
+                Long findMonth = expenditureRepository.findComparedAmountByCategory(category, member, oneDayOfMonth, now).orElse(0L);
+                long monthCompared = findMonth * 100 / findLastMonth;
+                ExpenditureAmountByCategoryResponse compared = ExpenditureAmountByCategoryResponse.of(category.getCategoryType(),monthCompared);
+                monthComparedList.add(compared);
+            }
+        }
+
+        if (comparedAmountAllOfMonth == 0L){
+            throw new ErrorException(ErrorCode.NON_EXISTENT_MEMBER);
+        }
+        Long comparedAmountAllOfLastMonth = expenditureRepository.findTodayAmount(member, oneDayOfLastMonth).orElse(0L);
+        long comparedAmountAll = comparedAmountAllOfMonth * 100 / comparedAmountAllOfLastMonth;
+        return ComparedResponse.of(comparedAmountAll, monthComparedList);
+
+    }
+    public ComparedResponse memberResponse(Member member){
+        LocalDate now = LocalDate.now();
+        Long todayBudget = budgetService.findTodayTotalAmount(member, YearMonth.now().atDay(1));
+        List<Category> categories = categoryService.categoryList();
+        List<ExpenditureAmountByCategoryResponse> memberComparedList = new ArrayList<>();
+
+        for (Category category : categories) {
+            Long todayBudgetByCategory = budgetService.findTodayTotalAmountByCategory(member, category,  YearMonth.now().atDay(1));
+            if (todayBudgetByCategory != 0L){
+                long todayExpenditureByCategory = expenditureRepository.findTodayTotalAmountByCategory(member, category, now).orElse(0L);
+                long res =  todayBudgetByCategory* 100 / todayExpenditureByCategory;
+                ExpenditureAmountByCategoryResponse response = ExpenditureAmountByCategoryResponse.of(category.getCategoryType(), res);
+                memberComparedList.add(response);
+            }
+        }
+
+        if (todayBudget == 0L){
+            throw new ErrorException(ErrorCode.NON_EXISTENT_MEMBER);
+        }
+        Long todayExpenditure = expenditureRepository.findTodayTotalAmount(member, now).orElse(0L);
+        long comparedAmountAll =  todayBudget * 100 / todayExpenditure;
+        return ComparedResponse.of(comparedAmountAll, memberComparedList);
+    }
+
 
 }
