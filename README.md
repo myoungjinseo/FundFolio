@@ -3,6 +3,7 @@
 <img src="https://img.shields.io/github/issues/myoungjinseo/FundFolio?color=inactive"/>
 <img src="https://img.shields.io/github/issues-closed/myoungjinseo/FundFolio"/> 
 </p>
+
 ## 요구 사항
 
 - 아래 명시되지 않더라도 사용자 및 기타 테이블에는 자동 생성되는 `id` 가 존재합니다.
