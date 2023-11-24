@@ -6,9 +6,9 @@
 
 ## 요구 사항
 
-- 아래 명시되지 않더라도 사용자 및 기타 테이블에는 자동 생성되는 `id` 가 존재합니다.
-
-## A. 유저
+<details>
+<summary>A.유저</summary>
+<div align="left">
 
 ### 사용자 회원가입(API)
 
@@ -19,8 +19,12 @@
 
 - `계정`, `비밀번호` 로 로그시 `JWT` 가 발급됩니다.
 - 이후 모든 API 요청 Header 에 `JWT` 가 항시 포함되며, `JWT` 유효성을 검증합니다.
+</div>
+</details>
 
-## B. 예산설정 및 설계
+<details>
+<summary>B. 예산설정 및 설계</summary>
+<div align="left">
 
 ### 카테고리
 
@@ -52,9 +56,13 @@
 유저는 예산 설정 페이지 에서 카테고리별로 `예산을 설정` 합니다. 
 이를 지정하기 어려운 유저들은 `예산 추천 기능`을 사용하고 클릭 시, 자동으로 페이지 상 카테고리 별 예산이 입력됩니다.
 유저는 입력 된 값들을 필요에 따라 수정(API 가 아닌 화면에서) 한 뒤 이를 `저장(=예산설정 API)`합니다
-> 
 
-## C. 지출 기록
+</div>
+</details>
+
+<details>
+<summary>C. 지출 기록</summary>
+<div align="left">
 
 ### 지출
 
@@ -73,7 +81,13 @@
         - ex) 0~10000원 / 20000원 ~ 100000원
 - `합계제외` 처리한 지출은 목록에 포함되지만, 모든 `지출 합계`에서 제외됩니다.
 
-## D. 지출 컨설팅
+</div>
+</details>
+
+
+<details>
+<summary>D. 지출 컨설팅</summary>
+<div align="left">
 
 ### 오늘 지출 추천(API)
 
@@ -106,9 +120,14 @@
     - Discord webhook, 이메일, 카카오톡 등 실제 알림까지 진행하셔도 좋습니다.
 
 > 본 기능은 명확한 요구사항이 존재하지 않습니다.위와 같이 유저들이 지속적으로 건강한 소비 습관을 생성하기 위한 목적을 이해하시고 자유롭게 해석 및 구현하세요.
-> 
+</div>
+</details> 
 
-## E. 지출 통계
+
+ 
+<details>
+<summary>E. 지출 통계</summary>
+<div align="left">
 
 ### Dummy 데이터 생성
 
@@ -127,6 +146,8 @@
     - 오늘기준 다른 유저가 소비한 지출이 평균 50%(ex. 예산 100만원 중 50만원 소비중) 이고 나는 60% 이면 120%.
     - ex) `다른 사용자` 대비 120%
 
+</div>
+</details> 
 
 ## 기술스택
 ### Language
@@ -148,3 +169,7 @@
 <p>
 <img src="https://img.shields.io/badge/mysql-4479A1?style=for-the-badge&logo=mysql&logoColor=orange">
 </p>
+
+
+## ERD 다이어그램
+![image](https://github.com/myoungjinseo/FundFolio/assets/80959635/ff82259a-fcb0-4f94-95b6-3c79d7e6d0e8)
