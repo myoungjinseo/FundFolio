@@ -172,4 +172,5 @@
 
 
 ## ERD 다이어그램
-![image](https://github.com/myoungjinseo/FundFolio/assets/80959635/ff82259a-fcb0-4f94-95b6-3c79d7e6d0e8)
+![image](https://github.com/myoungjinseo/FundFolio/assets/80959635/a6d188eb-97b9-45d3-9ee0-a9cb8abb4af1)
+
